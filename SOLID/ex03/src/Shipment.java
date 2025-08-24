@@ -1,4 +1,13 @@
 public class Shipment {
-    String type; double weightKg;
-    Shipment(String type, double w){ this.type=type; this.weightKg=w; }
+    private final ShippingStrategy strategy;
+    final double weightKg;
+
+    Shipment(ShippingStrategy strategy, double w) {
+        this.strategy = strategy;
+        this.weightKg = w;
+    }
+
+    double calculateCost() {
+        return strategy.calculate(this);
+    }
 }
