@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Telescoping constructors + setters. Allows invalid states.
+ * Immutable Order built via Builder.
  */
-public class Order {
-    private String id;
-    private String customerEmail;
-    private List<OrderLine> lines = new ArrayList<>();
-        private Integer discountPercent; // 0..100 expected, but not enforced
-        private boolean expedited;
-        private String notes;
-    
-        private Order(Builder builder) {
-            this.id = builder.id;
-            this.customerEmail = builder.customerEmail;
-            // defensive copy of lines
-            this.lines = Collections.unmodifiableList(new ArrayList<>(builder.lines));
+public final class Order {
+    private final String id;
+    private final String customerEmail;
+    private final List<OrderLine> lines;
+    private final Integer discountPercent; // 0..100
+    private final boolean expedited;
+    private final String notes;
+
+    private Order(Builder builder) {
+        this.id = builder.id;
+        this.customerEmail = builder.customerEmail;
+        // defensive copy of lines
+        this.lines = Collections.unmodifiableList(new ArrayList<>(builder.lines));
         this.discountPercent = builder.discountPercent;
         this.expedited = builder.expedited;
         this.notes = builder.notes;
@@ -35,17 +35,21 @@ public class Order {
 
     public int totalBeforeDiscount() {
         int sum = 0;
-        for (OrderLine l : lines)
+        for (OrderLine l : lines) {
             sum += l.getQuantity() * l.getUnitPriceCents();
+        }
         return sum;
     }
 
     public int totalAfterDiscount() {
         int base = totalBeforeDiscount();
-        if (discountPercent == null)
-            return base;
+        if (discountPercent == null) return base;
         return base - (base * discountPercent / 100);
     }
+
+    /**
+     * Builder for Order.
+     */
     public static class Builder {
         private final String id;
         private final String customerEmail;
